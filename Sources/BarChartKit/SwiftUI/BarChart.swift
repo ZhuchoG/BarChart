@@ -59,6 +59,10 @@ public struct BarChart: View {
     private var maxDataSetValue: Double {
         dataSet.elements.flatMap { $0.bars.map { $0.value } }.max() ?? Double.leastNonzeroMagnitude
     }
+    
+    private var minDataSetValue: Double {
+        dataSet.elements.flatMap { $0.bars.map { $0.value } }.min() ?? Double.leastNonzeroMagnitude
+    }
 
     public var body: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -69,7 +73,7 @@ public struct BarChart: View {
                             GeometryReader { geometry in
                                 VStack {
                                         Rectangle()
-                                            .frame(width: 6, height: self.height(for: bar, viewHeight: geometry.size.height, maxValue: self.maxDataSetValue))
+                                            .frame(width: 6, height: self.height(for: bar, viewHeight: geometry.size.height, maxValue: self.maxDataSetValue, minValue: self.minDataSetValue))
                                             .cornerRadius(3, antialiased: false)
                                             .foregroundColor(self.selectedElement == element ? self.dataSet.selectionColor ?? bar.color : bar.color)
                                 }
@@ -97,8 +101,8 @@ public struct BarChart: View {
         self._selectedElement = selectedElement
     }
 
-    private func height(for bar: DataSet.DataElement.Bar, viewHeight: CGFloat, maxValue: Double) -> CGFloat {
-        let height = viewHeight * CGFloat(bar.value / self.maxDataSetValue)
+    private func height(for bar: DataSet.DataElement.Bar, viewHeight: CGFloat, maxValue: Double, minValue: Double) -> CGFloat {
+        let height = viewHeight * CGFloat(bar.value / (maxValue - minValue))
 
         if height < 6.0 {
             return 6.0
